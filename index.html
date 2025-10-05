@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <title id="titulo">Teste</title>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body>
+    <div>
+        <h1>Automatos</h1>
+
+        <div class="radio-group">
+            <input type="radio" id="afd" value="afd" name="tipo">
+            <label for="afd">AFD</label>
+
+            <input type="radio" id="afn" value="afn" name="tipo">
+            <label for="afn">AFN</label>
+
+            <input type="radio" id="afnl" value="afnl" name="tipo">
+            <label for="afnl">AFNλ</label>
+
+            <input type="radio" id="apd" value="apd" name="tipo">
+            <label for="apd">APD</label>
+
+            <input type="radio" id="apn" value="apn" name="tipo">
+            <label for="apn">APN</label>
+
+            <input type="radio" id="mt" value="mt" name="tipo">
+            <label for="mt">MT</label>
+        </div>
+
+
+        <table>
+            <tr>
+                <td style="vertical-align: middle;text-align: center;">
+                    <h1 id="sigla">AFD</h1>
+                </td>
+                <td>
+                    <div id="menu" class="topbar">
+                        <input type="text" id="palavra" placeholder="Palavra">
+                        <button id="testa_palavra">testar palavra</button>
+                        <button id="debuga_palavra">debugar palavra</button>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div class="sidebar">
+                        <label for="uploadInput" id="importar">Importar APN</label>
+                        <input type="file" id="uploadInput" accept=".json" style="display: none;">
+                        <button id="download">Baixar APN</button>
+                        <button id="addEstado">Novo estado</button>
+                        <button id="addTransicao">Nova transição</button>
+                    </div>
+                </td>
+                <td class="campo">
+                    <h2 id="resposta"></h2>
+                    <div id="grafo"></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script src="libs/cytoscape.min.js"></script>
+
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>
