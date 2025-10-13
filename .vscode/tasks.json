@@ -1,0 +1,15 @@
+ {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "start server",
+                "type": "shell",
+                "command": "python3 -m http.server 8000",
+                "group": "build", // Optional: Assign to a task group (e.g., "build", "test")
+                "presentation": {
+                    "reveal": "always", // Optional: Control when the terminal panel is shown
+                    "panel": "shared" // Optional: Use a shared terminal panel
+                }
+            }
+        ]
+    }
