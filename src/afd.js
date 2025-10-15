@@ -4,9 +4,15 @@ import { Automato } from "../libs/automato.js";
 export class AFD extends Automato {
     constructor(cy) {
         super(cy);
+        this.tipo = 1;
         this.nome = "AFD";
         this.formEstado = new FormularioEstado();
         this.campos_transicao();
+    }
+    recuperador(estados,transicoes){
+        this.estados = [...estados];
+        this.transicoes = [... transicoes];
+        this.cria_desenho();
     }
     campos_transicao() {
         let texto = document.createElement("input");

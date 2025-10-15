@@ -12,22 +12,22 @@
         <h1>Automatos</h1>
 
         <div class="radio-group">
-            <input type="radio" id="afd" value="afd" name="tipo">
+            <input type="radio" id="afd" value="1" name="tipo" onclick="inicia_automato(1)">
             <label for="afd">AFD</label>
 
-            <input type="radio" id="afn" value="afn" name="tipo">
+            <input type="radio" id="afn" value="2" name="tipo" onclick="inicia_automato(2)">
             <label for="afn">AFN</label>
 
-            <input type="radio" id="afnl" value="afnl" name="tipo">
+            <input type="radio" id="afnl" value="3" name="tipo" onclick="inicia_automato(3)">
             <label for="afnl">AFNλ</label>
 
-            <input type="radio" id="apd" value="apd" name="tipo">
+            <input type="radio" id="apd" value="4" name="tipo" onclick="inicia_automato(4)">
             <label for="apd">APD</label>
 
-            <input type="radio" id="apn" value="apn" name="tipo">
+            <input type="radio" id="apn" value="5" name="tipo" onclick="inicia_automato(5)">
             <label for="apn">APN</label>
 
-            <input type="radio" id="mt" value="mt" name="tipo">
+            <input type="radio" id="mt" value="6" name="tipo" onclick="inicia_automato(6)">
             <label for="mt">MT</label>
         </div>
 
@@ -48,9 +48,9 @@
             <tr>
                 <td>
                     <div class="sidebar">
-                        <label for="uploadInput" id="importar">Importar APN</label>
-                        <input type="file" id="uploadInput" accept=".json" style="display: none;">
-                        <button id="download">Baixar APN</button>
+                        <label for="upload" id="importar">Importar AFD</label>
+                        <input type="file" id="upload" accept=".json" style="display: none;">
+                        <button id="download">Baixar AFD</button>
                         <button id="addEstado">Novo estado</button>
                         <button id="addTransicao">Nova transição</button>
                     </div>

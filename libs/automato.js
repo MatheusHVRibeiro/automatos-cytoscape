@@ -3,11 +3,13 @@ class Estado {
     this.nome = nome;
     this.final = false;
   }
-  torna_final(){
-    if(this.final){
+  torna_final() {
+    if (this.final) {
       this.final = false;
-    }else{
+      cy.getElementById(this.nome).style({'border-style': 'solid','border-width': 3});
+    } else {
       this.final = true;
+      cy.getElementById(this.nome).style({'border-style': 'double','border-width': 10});
     }
   }
 }
@@ -22,10 +24,22 @@ class Transicao {
 
 export class Automato {
   constructor(cy) {
+    this.tipo = 0;
     this.nome = "";
     this.estados = [];
     this.transicoes = [];
     this.cy = cy;
+  }
+
+  cria_desenho() {
+    this.estados.forEach(estado => {
+      this.cy.add({ data: { id: estado.nome } });
+    });
+    this.transicoes.forEach(transicao => {
+      let id = transicao.origem + "->" + transicao.texto + "->" + transicao.destino;
+      this.cy.add({ data: { id: id, source: transicao.origem, target: transicao.destino, valor: transicao.texto } });
+    });
+    this.cy.layout({ name: 'circle' }).run();
   }
 
   adiciona_estado(novo) {
@@ -54,11 +68,12 @@ export class Automato {
     });
     if (!repete) {
       this.transicoes.push(new Transicao(origem, destino, texto));
-      this.cy.add({ data: { id: id, source: origem, target: destino, valor:texto } });
+      this.cy.add({ data: { id: id, source: origem, target: destino, valor: texto } });
       this.cy.layout({ name: 'circle' }).run();
     } else {
       alert("Esta transição já existe, tente valores diferentes");
     }
-
   }
+
+
 }

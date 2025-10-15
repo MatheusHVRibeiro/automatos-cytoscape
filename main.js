@@ -1,3 +1,4 @@
+import { Automato } from "./libs/automato.js";
 import { AFD } from "./src/afd.js";
 /*
 import {AFN} from "./src/afn.js";
@@ -6,8 +7,16 @@ import {APD} from "./src/apd.js";
 import {APN} from "./src/apn.js";
 import {MT} from "./src/mt.js";
 */
-const no1 = 'no1';
-const no2 = "no2";
+let modo = 1;
+
+const dicionario = {
+  1:"AFD",
+  2:"AFN",
+  3:"AFNλ",
+  4:"APD",
+  5:"APN",
+  6:"MT"
+};
 
 const cy = cytoscape({
   container: document.getElementById('grafo'),
@@ -16,8 +25,15 @@ const cy = cytoscape({
     {
       selector: 'node',
       style: {
+        'text-valign': 'center',  
+        'text-halign': 'center', 
         'background-color': '#0074D9',
-        'label': 'data(id)'
+        'label': 'data(id)',
+
+        'border-width': 3,              
+        'border-color': '#000000',      
+        'border-opacity': 1,            
+        'border-style': 'solid'
       }
     },
     {
@@ -42,39 +58,15 @@ const cy = cytoscape({
   layout: { name: 'circle' }
 });
 
-const automato = new AFD(cy);
+let automato = new AFD(cy);
 
-const radios = document.querySelectorAll('input[name="tipo"]');
-
-radios.forEach(radio => {
-  radio.addEventListener('change', () => {
-    if (radio.checked) {
-      document.getElementById("sigla").innerText = radio.value.toUpperCase();
-      switch (radio.value) {
-        case 'afd':
-          console.log(radio.value);
-          break;
-        case 'afn':
-          console.log(radio.value);
-          break;
-        case 'afnl':
-          console.log(radio.value);
-          break;
-        case 'apd':
-          console.log(radio.value);
-          break;
-        case 'apn':
-          console.log(radio.value);
-          break;
-        case 'mt':
-          console.log(radio.value);
-          break;
-      }
-      init();
-    }
-  });
-});
-
+window.inicia_automato = function(op){
+  modo = op ;
+  document.getElementById("sigla").innerText  = dicionario[modo];
+  document.getElementById("titulo").innerText  = dicionario[modo];
+  document.getElementById("download").innerText  = "Baixar "+dicionario[modo];
+  document.getElementById("importar").innerText  = "Importar "+dicionario[modo];
+}
 
 export function init() {
   let addEstado = document.getElementById("addEstado");
@@ -94,7 +86,8 @@ init();
 document.getElementById("download").addEventListener("click", function () {
   let aux = {
     estados: [...automato.estados],
-    transicoes: [...automato.transicoes]
+    transicoes: [...automato.transicoes],
+    tipo: automato.tipo
   };
 
   // Converte o objeto JSON em uma string
@@ -107,7 +100,7 @@ document.getElementById("download").addEventListener("click", function () {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = "APN.json"; // Nome do arquivo a ser baixado
+  link.download = dicionario[modo]+".json"; // Nome do arquivo a ser baixado
 
   // Adiciona o link à página e simula o clique
   document.body.appendChild(link);
@@ -117,7 +110,7 @@ document.getElementById("download").addEventListener("click", function () {
   URL.revokeObjectURL(url);
 });
 
-document.getElementById("uploadInput").addEventListener("change", function (event) {
+document.getElementById("upload").addEventListener("change", function (event) {
   const file = event.target.files[0];
   if (!file) return; // Se nenhum arquivo foi selecionado, saia da função
 
@@ -127,41 +120,10 @@ document.getElementById("uploadInput").addEventListener("change", function (even
   // Define a função de callback a ser chamada quando a leitura for concluída
   reader.onload = function (event) {
     const jsonData = JSON.parse(event.target.result);
-    automato = jsonData;
-    automato.forEach(estado => {
-      estado.adiciona_transisao = function (i, valor, empilha, desempilha) {
-        let valida = true;
-        this.transicoes.forEach(transicao => {
-          if (transicao.valor == valor) {
-            valida = false;
-            alert("transisao invalida para APN");
-          }
-        });
-        if (valor == "") {
-          valida = false;
-          alert("transisao invalida para APN");
-        }
-        if (valida) {
-          this.transicoes.push(new Transicao(this.numero, i, valor, this.transicoes.length, empilha, desempilha));
-        }
-
-        desenha(ctx);
-      };
-
-      estado.remove_transicao = function (i) {
-        this.transicoes = this.transicoes.filter(objeto => objeto.numero !== i);
-        for (i = 0; i < this.transicoes.length; ++i) {
-          this.transicoes[i].numero = i;
-        }
-        desenha(ctx);
-      };
-
-      estado.torna_final = function () {
-        this.final = !this.final;
-        desenha(ctx);
-      };
-    });
-    desenha(ctx);
+    if(jsonData.tipo == 1){
+      automato = new AFD(cy);
+    }
+    automato.recuperador(jsonData.estados, jsonData.transicoes);
   };
 
   // Inicia a leitura do arquivo como texto
