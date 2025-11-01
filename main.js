@@ -54,8 +54,14 @@ const cy = cytoscape({
       }
     }
   ],
+  zoom: 1.5,
 
-  layout: { name: 'circle' }
+  layout: { name: 'preset' }
+});
+
+cy.on('cxttap', 'node', function(evt) {
+  const node = evt.target;
+  automato.opcoes(node.id());
 });
 
 let automato = new AFD(cy);
@@ -69,11 +75,9 @@ window.inicia_automato = function(op){
 }
 
 export function init() {
-  let addEstado = document.getElementById("addEstado");
-  addEstado.addEventListener("click", automato.adiciona_estado.bind(automato));
 
-  let addTransicao = document.getElementById("addTransicao");
-  addTransicao.addEventListener("click", automato.adiciona_transicao.bind(automato));
+  document.getElementById("addEstado").addEventListener("click", automato.adiciona_estado.bind(automato));
+  document.getElementById("addTransicao").addEventListener("click", automato.adiciona_transicao.bind(automato));
 
   let testa = document.getElementById("testa_palavra");
   testa.addEventListener("click", automato.testa_palavra.bind(automato));
@@ -129,3 +133,18 @@ document.getElementById("upload").addEventListener("change", function (event) {
   // Inicia a leitura do arquivo como texto
   reader.readAsText(file);
 });
+
+document.getElementById("tornafinal").addEventListener("click", function () {
+    
+});
+
+document.getElementById("tornainicial").addEventListener("click", function () {
+
+});
+
+
+/*
+document.getElementById('grafo').addEventListener("contextmenu", function(event) {
+    event.preventDefault();
+    automato.adiciona_estado();
+});*/

@@ -67,3 +67,18 @@ export class Alerta extends Formulario{
         document.body.appendChild(this);
     }
 }
+export class FormularioOpcoes extends Formulario{
+    constructor(){
+        super();
+        this.final = document.createElement("button");
+        this.final.innerText = "tornar final";
+        this.div.appendChild(this.final);
+        this.div.appendChild(document.createElement("br"));
+
+        this.inicial = document.createElement("button");
+        this.inicial.innerText = "tornar inicial";
+        this.div.appendChild(this.inicial);
+
+
+    }
+}

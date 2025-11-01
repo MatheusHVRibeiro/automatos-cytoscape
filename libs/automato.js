@@ -2,16 +2,9 @@ class Estado {
   constructor(nome) {
     this.nome = nome;
     this.final = false;
+    this.inicial = false;
   }
-  torna_final() {
-    if (this.final) {
-      this.final = false;
-      cy.getElementById(this.nome).style({'border-style': 'solid','border-width': 3});
-    } else {
-      this.final = true;
-      cy.getElementById(this.nome).style({'border-style': 'double','border-width': 10});
-    }
-  }
+
 }
 
 class Transicao {
@@ -39,7 +32,7 @@ export class Automato {
       let id = transicao.origem + "->" + transicao.texto + "->" + transicao.destino;
       this.cy.add({ data: { id: id, source: transicao.origem, target: transicao.destino, valor: transicao.texto } });
     });
-    this.cy.layout({ name: 'circle' }).run();
+    this.cy.layout({ name: 'preset' }).run();
   }
 
   adiciona_estado(novo) {
@@ -52,8 +45,8 @@ export class Automato {
     if (!repete) {
       this.estados.push(new Estado(novo));
       this.cy.add({ data: { id: novo } });
-      this.cy.layout({ name: 'circle' }).run();
-    } else {
+      this.cy.layout({ name: 'preset' }).run();
+    } else if (repete) {
       alert("já existe um estado com este nome, favor incerir outro nome");
     }
   }
@@ -69,11 +62,43 @@ export class Automato {
     if (!repete) {
       this.transicoes.push(new Transicao(origem, destino, texto));
       this.cy.add({ data: { id: id, source: origem, target: destino, valor: texto } });
-      this.cy.layout({ name: 'circle' }).run();
-    } else {
+      this.cy.layout({ name: 'preset' }).run();
+    } else if (repete) {
       alert("Esta transição já existe, tente valores diferentes");
     }
   }
 
+  torna_final(nome) {
+    let i = this.get_estado_by_nome(nome);
+    if (this.estados[i].final) {
+      this.estados[i].final = false;
+      this.cy.getElementById(this.estados[i].nome).style({ 'border-style': 'solid', 'border-width': 3 });
+    } else {
+      this.estados[i].final = true;
+      this.cy.getElementById(this.estados[i].nome).style({ 'border-style': 'double', 'border-width': 10 });
+    }
+  }
+  torna_inicial(nome) {
 
+    let i = this.get_estado_by_nome(nome);
+    if (this.estados[i].inicial) {
+      this.estados[i].inicial = false;
+      this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'none' });
+    } else {
+      this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'url(../img/inicial.png)' });
+      this.cy.getElementById(this.estados[i].nome).style({ 'background-clip':' none' });
+      this.cy.getElementById(this.estados[i].nome).style({ 'bounds-expansion':' 20' });
+      this.cy.getElementById(this.estados[i].nome).style({
+        'background-width': '60px',   // pode ser % ou px
+        'background-height': '40px'
+      });
+    }
+  }
+  get_estado_by_nome(nome) {
+    for (let i = 0; i < this.estados.length; i++) {
+      if (this.estados[i].nome == nome) {
+        return i;
+      }
+    }
+  }
 }

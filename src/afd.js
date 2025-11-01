@@ -1,4 +1,4 @@
-import { Alerta, FormularioEstado, FormularioTransicao } from "../libs/formulario.js";
+import { Alerta, FormularioEstado, FormularioTransicao, FormularioOpcoes } from "../libs/formulario.js";
 import { Automato } from "../libs/automato.js";
 
 export class AFD extends Automato {
@@ -6,6 +6,7 @@ export class AFD extends Automato {
         super(cy);
         this.tipo = 1;
         this.nome = "AFD";
+        this.formopcoes = new FormularioOpcoes();
         this.formEstado = new FormularioEstado();
         this.campos_transicao();
     }
@@ -67,6 +68,18 @@ export class AFD extends Automato {
     }
     debuga_palavra() {
         console.log("chegou aqui");
+    }
+    opcoes(i){
+        this.formopcoes.final.addEventListener("click",()=>{
+            this.torna_final(i);
+            document.body.removeChild(this.formopcoes.div);
+        });
+
+        this.formopcoes.inicial.addEventListener("click",()=>{
+            this.torna_inicial(i);
+            document.body.removeChild(this.formopcoes.div);
+        });
+        document.body.appendChild(this.formopcoes.div);
     }
 }
 
