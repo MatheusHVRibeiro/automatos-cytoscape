@@ -22,6 +22,7 @@ export class Automato {
     this.estados = [];
     this.transicoes = [];
     this.cy = cy;
+    this. inicial = null;
   }
 
   cria_desenho() {
@@ -52,6 +53,7 @@ export class Automato {
   }
 
   adiciona_transicao(texto, origem, destino) {
+    console.log(origem+"->"+texto+"->"+destino);
     let id = origem + "->" + texto + "->" + destino;
     let repete = false;
     this.transicoes.forEach(transicao => {
@@ -91,7 +93,7 @@ export class Automato {
       this.cy.getElementById(this.estados[i].nome).style({
         'background-width': '60px',   // pode ser % ou px
         'background-height': '40px'
-      });
+      }); 
     }
   }
   get_estado_by_nome(nome) {

@@ -1,4 +1,4 @@
-import { Automato } from "./libs/automato.js";
+
 import { AFD } from "./src/afd.js";
 /*
 import {AFN} from "./src/afn.js";
@@ -10,12 +10,12 @@ import {MT} from "./src/mt.js";
 let modo = 1;
 
 const dicionario = {
-  1:"AFD",
-  2:"AFN",
-  3:"AFNλ",
-  4:"APD",
-  5:"APN",
-  6:"MT"
+  1: "AFD",
+  2: "AFN",
+  3: "AFNλ",
+  4: "APD",
+  5: "APN",
+  6: "MT"
 };
 
 const cy = cytoscape({
@@ -25,14 +25,14 @@ const cy = cytoscape({
     {
       selector: 'node',
       style: {
-        'text-valign': 'center',  
-        'text-halign': 'center', 
+        'text-valign': 'center',
+        'text-halign': 'center',
         'background-color': '#0074D9',
         'label': 'data(id)',
 
-        'border-width': 3,              
-        'border-color': '#000000',      
-        'border-opacity': 1,            
+        'border-width': 3,
+        'border-color': '#000000',
+        'border-opacity': 1,
         'border-style': 'solid'
       }
     },
@@ -54,24 +54,27 @@ const cy = cytoscape({
       }
     }
   ],
-  zoom: 1.5,
 
-  layout: { name: 'preset' }
+  layout: {
+    name: 'preset',
+
+    fit: false 
+  }
 });
 
-cy.on('cxttap', 'node', function(evt) {
+cy.on('cxttap', 'node', function (evt) {
   const node = evt.target;
   automato.opcoes(node.id());
 });
 
 let automato = new AFD(cy);
 
-window.inicia_automato = function(op){
-  modo = op ;
-  document.getElementById("sigla").innerText  = dicionario[modo];
-  document.getElementById("titulo").innerText  = dicionario[modo];
-  document.getElementById("download").innerText  = "Baixar "+dicionario[modo];
-  document.getElementById("importar").innerText  = "Importar "+dicionario[modo];
+window.inicia_automato = function (op) {
+  modo = op;
+  document.getElementById("sigla").innerText = dicionario[modo];
+  document.getElementById("titulo").innerText = dicionario[modo];
+  document.getElementById("download").innerText = "Baixar " + dicionario[modo];
+  document.getElementById("importar").innerText = "Importar " + dicionario[modo];
 }
 
 export function init() {
@@ -104,7 +107,7 @@ document.getElementById("download").addEventListener("click", function () {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = dicionario[modo]+".json"; // Nome do arquivo a ser baixado
+  link.download = dicionario[modo] + ".json"; // Nome do arquivo a ser baixado
 
   // Adiciona o link à página e simula o clique
   document.body.appendChild(link);
@@ -124,7 +127,7 @@ document.getElementById("upload").addEventListener("change", function (event) {
   // Define a função de callback a ser chamada quando a leitura for concluída
   reader.onload = function (event) {
     const jsonData = JSON.parse(event.target.result);
-    if(jsonData.tipo == 1){
+    if (jsonData.tipo == 1) {
       automato = new AFD(cy);
     }
     automato.recuperador(jsonData.estados, jsonData.transicoes);
@@ -135,7 +138,7 @@ document.getElementById("upload").addEventListener("change", function (event) {
 });
 
 document.getElementById("tornafinal").addEventListener("click", function () {
-    
+
 });
 
 document.getElementById("tornainicial").addEventListener("click", function () {

@@ -6,15 +6,58 @@ export class AFD extends Automato {
         super(cy);
         this.tipo = 1;
         this.nome = "AFD";
-        this.formopcoes = new FormularioOpcoes();
+
         this.formEstado = new FormularioEstado();
         this.campos_transicao();
+        this.configura_opcoes();
     }
-    recuperador(estados,transicoes){
+    configura_opcoes() {
+        this.formopcoes = new FormularioOpcoes();
+
+        this.formopcoes.final.addEventListener("click", () => {
+            let i = this.formopcoes.sujeito;
+            this.torna_final(i);
+            this.formopcoes.fechar();
+            console.log(this.estados);
+        });
+
+        this.formopcoes.inicial.addEventListener("click", () => {
+            let i = this.formopcoes.sujeito;
+            this.torna_inicial(i);
+            this.formopcoes.fechar();
+            console.log(this.estados);
+        });
+    }
+    torna_inicial(nome) {
+        let i = this.get_estado_by_nome(nome);
+
+        this.estados.forEach(estado => {
+            if (!estado.inicial && nome == estado.nome) {
+                this.estados[i].inicial = true;
+
+                this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'url(../img/inicial.png)' });
+                this.cy.getElementById(this.estados[i].nome).style({ 'background-clip': ' none' });
+                this.cy.getElementById(this.estados[i].nome).style({ 'bounds-expansion': ' 20' });
+                this.cy.getElementById(this.estados[i].nome).style({
+                    'background-width': '60px',   // pode ser % ou px
+                    'background-height': '40px'
+                });
+                
+                this.inicial = i;
+            } else if ((estado.inicial && nome != estado.nome) || (estado.inicial && nome == estado.nome)) {
+                this.estados[i].inicial = false;
+                this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'none' });
+            }
+
+        });
+    }
+
+    recuperador(estados, transicoes) {
         this.estados = [...estados];
-        this.transicoes = [... transicoes];
+        this.transicoes = [...transicoes];
         this.cria_desenho();
     }
+
     campos_transicao() {
         let texto = document.createElement("input");
         texto.placeholder = "leitura";
@@ -24,7 +67,7 @@ export class AFD extends Automato {
     adiciona_estado() {
         this.formEstado.adiciona.addEventListener("click", () => {
             super.adiciona_estado(this.formEstado.nome.value);
-            document.body.removeChild(this.formEstado.div);
+            this.formEstado.fechar();
         });
         document.body.appendChild(this.formEstado.div);
     }
@@ -36,21 +79,22 @@ export class AFD extends Automato {
                 this.formTransicao.origem.value,
                 this.formTransicao.destino.value,
             );
-            document.body.removeChild(this.formTransicao.div);
+            this.formTransicao.fechar();
         });
         document.body.appendChild(this.formTransicao.div);
     }
 
-    testa_palavra() {
+    executa_passo(passo) {
         palavra = document.getElementById("palavra");
-        let estadoAtual = 0;
+        let estadoAtual = this.get_estado_by_nome(this.inicial);
         let passou = false;
         let erro = false;
-        for (let i = 0; i < palavra.value.length; i++) {
+        for (let i = 0; i < passo; i++) {
             this.transicoes.forEach(transicao => {
                 if (transicao.origem == estadoAtual) {
                     if (palavra.value[i] == transicao.texto) {
                         estadoAtual = transicao.destino;
+                        console.log("estado atual ; "+estadoAtual);
                         passou = true;
                     }
                 }
@@ -61,24 +105,23 @@ export class AFD extends Automato {
             passou = false;
         }
         if (this.estados[estadoAtual].final && !erro) {
-            new ("palavra aceita");
+            new Alerta("palavra aceita");
         } else {
             new Alerta("palavra recusada");
         }
     }
+
+    testa_palavra() {
+        palavra = document.getElementById("palavra");
+        this.executa_passo(palavra.value.length);
+    }
+
     debuga_palavra() {
         console.log("chegou aqui");
     }
-    opcoes(i){
-        this.formopcoes.final.addEventListener("click",()=>{
-            this.torna_final(i);
-            document.body.removeChild(this.formopcoes.div);
-        });
 
-        this.formopcoes.inicial.addEventListener("click",()=>{
-            this.torna_inicial(i);
-            document.body.removeChild(this.formopcoes.div);
-        });
+    opcoes(i) {
+        this.formopcoes.sujeito = i;
         document.body.appendChild(this.formopcoes.div);
     }
 }

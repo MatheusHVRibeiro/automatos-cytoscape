@@ -15,6 +15,9 @@ class Formulario{
         this.div.style.flexDirection = "column";
 
     }
+    fechar(){
+        document.body.removeChild(this.div);
+    }
 } 
 
 export class FormularioEstado extends Formulario {
@@ -28,6 +31,8 @@ export class FormularioEstado extends Formulario {
         this.adiciona.innerText = "adcionar"
         this.div.appendChild(this.adiciona);
     }
+
+    
 }
 
 export class FormularioTransicao extends Formulario {
@@ -58,13 +63,13 @@ export class Alerta extends Formulario{
         this.div.appendChild(this.alerta);
 
         this.adiciona = document.createElement("button");
-        this.adiciona.innerText = "adcionar"
+        this.adiciona.innerText = "OK"
         this.div.appendChild(this.adiciona);
 
         this.adiciona.addEventListener("click", () => {
-            document.body.removeChild(this);
+            this.fechar();
         });
-        document.body.appendChild(this);
+        document.body.appendChild(this.div);
     }
 }
 export class FormularioOpcoes extends Formulario{
@@ -79,6 +84,6 @@ export class FormularioOpcoes extends Formulario{
         this.inicial.innerText = "tornar inicial";
         this.div.appendChild(this.inicial);
 
-
+        this.sujeito = 0;
     }
 }
