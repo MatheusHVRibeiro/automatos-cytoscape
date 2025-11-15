@@ -1,13 +1,14 @@
-class Estado {
-  constructor(nome) {
+export class Estado {
+  constructor(nome, final = false, inicial = false) {
     this.nome = nome;
-    this.final = false;
-    this.inicial = false;
+    this.final = final;
+    this.inicial = inicial;
   }
+  
 
 }
 
-class Transicao {
+export class Transicao {
   constructor(origem, destino, texto) {
     this.origem = origem;
     this.destino = destino;
@@ -22,12 +23,25 @@ export class Automato {
     this.estados = [];
     this.transicoes = [];
     this.cy = cy;
-    this. inicial = null;
+    this.inicial = null;
+    this.debug = false;
   }
 
   cria_desenho() {
     this.estados.forEach(estado => {
       this.cy.add({ data: { id: estado.nome } });
+      if (estado.inicial) {
+        this.cy.getElementById(estado.nome).style({ 'background-image': 'url(../img/inicial.png)' });
+        this.cy.getElementById(estado.nome).style({ 'background-clip': ' none' });
+        this.cy.getElementById(estado.nome).style({ 'bounds-expansion': ' 20' });
+        this.cy.getElementById(estado.nome).style({
+          'background-width': '60px',
+          'background-height': '40px'
+        });
+      }
+      if (estado.final) {
+        this.cy.getElementById(estado.nome).style({ 'border-style': 'double', 'border-width': 10 });
+      }
     });
     this.transicoes.forEach(transicao => {
       let id = transicao.origem + "->" + transicao.texto + "->" + transicao.destino;
@@ -53,7 +67,7 @@ export class Automato {
   }
 
   adiciona_transicao(texto, origem, destino) {
-    console.log(origem+"->"+texto+"->"+destino);
+    console.log(origem + "->" + texto + "->" + destino);
     let id = origem + "->" + texto + "->" + destino;
     let repete = false;
     this.transicoes.forEach(transicao => {
@@ -88,12 +102,12 @@ export class Automato {
       this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'none' });
     } else {
       this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'url(../img/inicial.png)' });
-      this.cy.getElementById(this.estados[i].nome).style({ 'background-clip':' none' });
-      this.cy.getElementById(this.estados[i].nome).style({ 'bounds-expansion':' 20' });
+      this.cy.getElementById(this.estados[i].nome).style({ 'background-clip': ' none' });
+      this.cy.getElementById(this.estados[i].nome).style({ 'bounds-expansion': ' 20' });
       this.cy.getElementById(this.estados[i].nome).style({
         'background-width': '60px',   // pode ser % ou px
         'background-height': '40px'
-      }); 
+      });
     }
   }
   get_estado_by_nome(nome) {
@@ -102,5 +116,28 @@ export class Automato {
         return i;
       }
     }
+  }
+
+  debuga_palavra() {
+    let row = document.getElementById("tabelaPalavra");
+    let area = document.getElementById("debugArea");
+    let palavra = document.getElementById("palavra")
+    if (!this.debug) {
+      palavra.readOnly = true;
+      for (let i = 0; i < palavra.value.length; i++) {
+        let cell = document.createElement("td");
+        cell.innerText = palavra.value[i];
+        cell.className = "caracter";
+        row.appendChild(cell);
+      }
+      area.style.display = "block";
+      this.debug = true;
+    } else if (this.debug) {
+      row.innerHTML = "<td>&nbsp;</td>";
+      palavra.readOnly = false;
+      area.style.display = "none";
+      this.debug = false;
+    }
+
   }
 }

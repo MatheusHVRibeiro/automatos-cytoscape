@@ -58,7 +58,7 @@ const cy = cytoscape({
   layout: {
     name: 'preset',
 
-    fit: false 
+    fit: false
   }
 });
 
@@ -82,10 +82,9 @@ export function init() {
   document.getElementById("addEstado").addEventListener("click", automato.adiciona_estado.bind(automato));
   document.getElementById("addTransicao").addEventListener("click", automato.adiciona_transicao.bind(automato));
 
-  let testa = document.getElementById("testa_palavra");
-  testa.addEventListener("click", automato.testa_palavra.bind(automato));
+  document.getElementById("testa_palavra").addEventListener("click", automato.testa_palavra.bind(automato));
   let debuga = document.getElementById("debuga_palavra");
-  debuga.addEventListener("click", automato.debuga_palavra.bind(automato));
+  debuga.addEventListener("click", debuga_palavra);
 }
 
 init();
@@ -131,23 +130,9 @@ document.getElementById("upload").addEventListener("change", function (event) {
       automato = new AFD(cy);
     }
     automato.recuperador(jsonData.estados, jsonData.transicoes);
-  };
-
+    //console.log(automato.estados);
+  }
+  console.log(automato.estados);
   // Inicia a leitura do arquivo como texto
   reader.readAsText(file);
 });
-
-document.getElementById("tornafinal").addEventListener("click", function () {
-
-});
-
-document.getElementById("tornainicial").addEventListener("click", function () {
-
-});
-
-
-/*
-document.getElementById('grafo').addEventListener("contextmenu", function(event) {
-    event.preventDefault();
-    automato.adiciona_estado();
-});*/

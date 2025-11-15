@@ -1,16 +1,25 @@
 import { Alerta, FormularioEstado, FormularioTransicao, FormularioOpcoes } from "../libs/formulario.js";
-import { Automato } from "../libs/automato.js";
+import { Automato, Estado, Transicao } from "../libs/automato.js";
+
+class Momento {
+    constructor() {
+        this.i = 0;
+        this.estado = 0;
+    }
+}
 
 export class AFD extends Automato {
     constructor(cy) {
         super(cy);
         this.tipo = 1;
         this.nome = "AFD";
+        this.momento = new Momento();
 
         this.formEstado = new FormularioEstado();
         this.campos_transicao();
         this.configura_opcoes();
     }
+
     configura_opcoes() {
         this.formopcoes = new FormularioOpcoes();
 
@@ -28,6 +37,7 @@ export class AFD extends Automato {
             console.log(this.estados);
         });
     }
+
     torna_inicial(nome) {
         let i = this.get_estado_by_nome(nome);
 
@@ -39,11 +49,11 @@ export class AFD extends Automato {
                 this.cy.getElementById(this.estados[i].nome).style({ 'background-clip': ' none' });
                 this.cy.getElementById(this.estados[i].nome).style({ 'bounds-expansion': ' 20' });
                 this.cy.getElementById(this.estados[i].nome).style({
-                    'background-width': '60px',   // pode ser % ou px
+                    'background-width': '60px',
                     'background-height': '40px'
                 });
-                
-                this.inicial = i;
+
+                this.inicial = this.estados[i].nome;
             } else if ((estado.inicial && nome != estado.nome) || (estado.inicial && nome == estado.nome)) {
                 this.estados[i].inicial = false;
                 this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'none' });
@@ -53,8 +63,12 @@ export class AFD extends Automato {
     }
 
     recuperador(estados, transicoes) {
-        this.estados = [...estados];
-        this.transicoes = [...transicoes];
+        estados.forEach(estado=>{
+            this.estados.push(new Estado(estado.nome,estado.final,estado.inicial));
+        });
+        transicoes.forEach(transicao=>{
+            this.transicoes.push(new Transicao(transicao.origem,transicao.destino,transicao.texto));
+        });
         this.cria_desenho();
     }
 
@@ -84,40 +98,56 @@ export class AFD extends Automato {
         document.body.appendChild(this.formTransicao.div);
     }
 
-    executa_passo(passo) {
-        palavra = document.getElementById("palavra");
-        let estadoAtual = this.get_estado_by_nome(this.inicial);
-        let passou = false;
-        let erro = false;
-        for (let i = 0; i < passo; i++) {
-            this.transicoes.forEach(transicao => {
-                if (transicao.origem == estadoAtual) {
-                    if (palavra.value[i] == transicao.texto) {
-                        estadoAtual = transicao.destino;
-                        console.log("estado atual ; "+estadoAtual);
-                        passou = true;
-                    }
-                }
-            });
-            if (!passou) {
-                erro = true;
+    testa_palavra() {
+        this.estados.forEach(estado=>{
+            if(estado.inicial){
+                this.inicial = estado.nome
             }
-            passou = false;
+        });
+        console.log(this.inicial);
+        let final = document.getElementById("palavra").value.length;
+        let resultado = true;
+        this.zera();
+        
+        while (this.momento.i < final) {
+            console.log(this.momento.i);
+            if (resultado) {
+                resultado = this.executa_momento();
+            }
+            ++this.momento.i;
         }
-        if (this.estados[estadoAtual].final && !erro) {
+        
+        if (this.estados[this.get_estado_by_nome(this.momento.estado)].final && resultado) {
             new Alerta("palavra aceita");
         } else {
             new Alerta("palavra recusada");
         }
     }
 
-    testa_palavra() {
-        palavra = document.getElementById("palavra");
-        this.executa_passo(palavra.value.length);
+    zera() {
+        this.momento.estado = this.inicial;
+        this.momento.i = 0;
     }
 
-    debuga_palavra() {
-        console.log("chegou aqui");
+    executa_momento() {
+        console.log("aqui");
+        let palavra = document.getElementById("palavra");
+        let passou = false;
+
+        this.transicoes.forEach(transicao => {
+            console.log(transicao.origem+" , "+this.momento.estado);
+            console.log(palavra.value[this.momento.i] +" , "+ transicao.texto);
+            if (transicao.origem == this.momento.estado&&
+                palavra.value[this.momento.i] == transicao.texto) {
+
+                this.momento.estado = transicao.destino;
+                console.log("estado atual : " + this.momento.estado);
+                passou = true;
+
+            }
+        });
+
+        return passou;
     }
 
     opcoes(i) {
