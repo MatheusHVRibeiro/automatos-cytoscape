@@ -1,4 +1,4 @@
-
+import {cy} from "./libs/cy.js";
 import { AFD } from "./src/afd.js";
 /*
 import {AFN} from "./src/afn.js";
@@ -7,7 +7,6 @@ import {APD} from "./src/apd.js";
 import {APN} from "./src/apn.js";
 import {MT} from "./src/mt.js";
 */
-let modo = 1;
 
 const dicionario = {
   1: "AFD",
@@ -17,57 +16,10 @@ const dicionario = {
   5: "APN",
   6: "MT"
 };
-
-const cy = cytoscape({
-  container: document.getElementById('grafo'),
-
-  style: [
-    {
-      selector: 'node',
-      style: {
-        'text-valign': 'center',
-        'text-halign': 'center',
-        'background-color': '#0074D9',
-        'label': 'data(id)',
-
-        'border-width': 3,
-        'border-color': '#000000',
-        'border-opacity': 1,
-        'border-style': 'solid'
-      }
-    },
-    {
-      selector: 'edge',
-      style: {
-        'line-color': '#aaa',
-        'width': 4,
-        'label': 'data(valor)',
-        'font-size': 12,
-        'color': '#333',
-        'text-background-color': '#fff',
-        'text-background-opacity': 0.5,
-        'text-background-padding': '2px',
-        'text-margin-y': -12,
-
-        'curve-style': 'bezier',
-        'target-arrow-shape': 'triangle'
-      }
-    }
-  ],
-
-  layout: {
-    name: 'preset',
-
-    fit: false
-  }
-});
-
-cy.on('cxttap', 'node', function (evt) {
-  const node = evt.target;
-  automato.opcoes(node.id());
-});
-
+let modo = 1;
 let automato = new AFD(cy);
+
+
 
 window.inicia_automato = function (op) {
   modo = op;
@@ -83,8 +35,7 @@ export function init() {
   document.getElementById("addTransicao").addEventListener("click", automato.adiciona_transicao.bind(automato));
 
   document.getElementById("testa_palavra").addEventListener("click", automato.testa_palavra.bind(automato));
-  let debuga = document.getElementById("debuga_palavra");
-  debuga.addEventListener("click", debuga_palavra);
+  document.getElementById("debuga_palavra").addEventListener("click", automato.debuga_palavra.bind(automato));
 }
 
 init();
@@ -96,43 +47,41 @@ document.getElementById("download").addEventListener("click", function () {
     tipo: automato.tipo
   };
 
-  // Converte o objeto JSON em uma string
   const jsonString = JSON.stringify(aux);
 
-  // Cria um Blob com a string JSON
   const blob = new Blob([jsonString], { type: "application/json" });
 
-  // Cria um link de download
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
-  link.download = dicionario[modo] + ".json"; // Nome do arquivo a ser baixado
+  link.download = dicionario[modo] + ".json"; 
 
-  // Adiciona o link à página e simula o clique
   document.body.appendChild(link);
   link.click();
 
-  // Limpa o URL do objeto Blob após o download
+
   URL.revokeObjectURL(url);
 });
 
-document.getElementById("upload").addEventListener("change", function (event) {
+function lerArquivo(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = reject;
+    reader.readAsText(file);
+  });
+}
+
+document.getElementById("upload").addEventListener("change", async function (event) {
   const file = event.target.files[0];
-  if (!file) return; // Se nenhum arquivo foi selecionado, saia da função
+  if (!file) return;
 
-  // Cria um objeto FileReader para ler o conteúdo do arquivo
-  const reader = new FileReader();
+  const texto = await lerArquivo(file);
+  const jsonData = JSON.parse(texto);
 
-  // Define a função de callback a ser chamada quando a leitura for concluída
-  reader.onload = function (event) {
-    const jsonData = JSON.parse(event.target.result);
-    if (jsonData.tipo == 1) {
-      automato = new AFD(cy);
-    }
-    automato.recuperador(jsonData.estados, jsonData.transicoes);
-    //console.log(automato.estados);
+  if (jsonData.tipo == 1) {
+    automato = new AFD(cy);
   }
+  automato.recuperador(jsonData.estados, jsonData.transicoes);
   console.log(automato.estados);
-  // Inicia a leitura do arquivo como texto
-  reader.readAsText(file);
 });

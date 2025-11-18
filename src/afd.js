@@ -104,7 +104,7 @@ export class AFD extends Automato {
                 this.inicial = estado.nome
             }
         });
-        console.log(this.inicial);
+        console.log(this.estados);
         let final = document.getElementById("palavra").value.length;
         let resultado = true;
         this.zera();
@@ -122,6 +122,9 @@ export class AFD extends Automato {
         } else {
             new Alerta("palavra recusada");
         }
+    }
+    debuga_palavra(){
+        console.log(this.estados);
     }
 
     zera() {
