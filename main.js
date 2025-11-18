@@ -54,27 +54,26 @@ export class Main {
     URL.revokeObjectURL(url);
   }
 
-  le_arquivo(file) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsText(file);
-    });
-  }
-
   async carrega_automato(event) {
     const file = event.target.files[0];
     if (!file) return;
 
-    const texto = await this.le_arquivo(file);
+    const texto = await (async function (file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsText(file);
+      });
+    })(file); 
+
     const jsonData = JSON.parse(texto);
 
     if (jsonData.tipo == 1) {
-      automato = new AFD(cy);
+      this.automato = new AFD(cy);
     }
-    automato.recuperador(jsonData.estados, jsonData.transicoes);
-    console.log(automato.estados);
+    this.automato.recuperador(jsonData.estados, jsonData.transicoes);
+    console.log(this.automato.estados);
   }
 
   carrega_modo(op) {
