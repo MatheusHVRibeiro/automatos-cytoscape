@@ -27,53 +27,13 @@ export class Main {
     document.getElementById("testa_palavra").addEventListener("click", this.automato.testa_palavra.bind(this.automato));
     document.getElementById("debuga_palavra").addEventListener("click", this.automato.debuga_palavra.bind(this.automato));
 
-    document.getElementById("download").addEventListener("click", this.download);
-    document.getElementById("upload").addEventListener("change", this.carrega_automato);
   }
 
-  download() {
-    let aux = {
-      estados: [...automato.estados],
-      transicoes: [...automato.transicoes],
-      tipo: automato.tipo
-    };
-
-    const jsonString = JSON.stringify(aux);
-
-    const blob = new Blob([jsonString], { type: "application/json" });
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = dicionario[modo] + ".json";
-
-    document.body.appendChild(link);
-    link.click();
-
-
-    URL.revokeObjectURL(url);
-  }
-
-  async carrega_automato(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-
-    const texto = await (async function (file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsText(file);
-      });
-    })(file); 
-
-    const jsonData = JSON.parse(texto);
-
-    if (jsonData.tipo == 1) {
+  carrega_automato(jsonData){
+    if(jsonData.modo == 1){
       this.automato = new AFD(cy);
     }
     this.automato.recuperador(jsonData.estados, jsonData.transicoes);
-    console.log(this.automato.estados);
   }
 
   carrega_modo(op) {
@@ -89,3 +49,41 @@ export class Main {
 const main = new Main();
 
 window.inicia_automato = main.carrega_modo;
+
+
+document.getElementById("download").addEventListener("click", function () {
+  let aux = {
+    estados: [...main.automato.estados],
+    transicoes: [...main.automato.transicoes],
+    tipo: main.automato.tipo
+  };
+
+  const jsonString = JSON.stringify(aux);
+
+  const blob = new Blob([jsonString], { type: "application/json" });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = main.dicionario[main.modo] + ".json";
+
+  document.body.appendChild(link);
+  link.click();
+
+  URL.revokeObjectURL(url);
+});
+
+document.getElementById("upload").addEventListener("change", function (event) {
+  const file = event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = function (event) {
+    const jsonData = JSON.parse(event.target.result);
+    main.carrega_automato(jsonData);
+  };
+
+  reader.readAsText(file);
+
+});

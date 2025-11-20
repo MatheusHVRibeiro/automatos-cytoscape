@@ -104,13 +104,11 @@ export class AFD extends Automato {
                 this.inicial = estado.nome
             }
         });
-        console.log(this.estados);
         let final = document.getElementById("palavra").value.length;
         let resultado = true;
         this.zera();
         
         while (this.momento.i < final) {
-            console.log(this.momento.i);
             if (resultado) {
                 resultado = this.executa_momento();
             }
@@ -133,20 +131,15 @@ export class AFD extends Automato {
     }
 
     executa_momento() {
-        console.log("aqui");
         let palavra = document.getElementById("palavra");
         let passou = false;
 
         this.transicoes.forEach(transicao => {
-            console.log(transicao.origem+" , "+this.momento.estado);
-            console.log(palavra.value[this.momento.i] +" , "+ transicao.texto);
             if (transicao.origem == this.momento.estado&&
                 palavra.value[this.momento.i] == transicao.texto) {
 
                 this.momento.estado = transicao.destino;
-                console.log("estado atual : " + this.momento.estado);
                 passou = true;
-
             }
         });
 
