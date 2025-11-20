@@ -94,6 +94,7 @@ export class Automato {
       this.cy.getElementById(this.estados[i].nome).style({ 'border-style': 'double', 'border-width': 10 });
     }
   }
+
   torna_inicial(nome) {
 
     let i = this.get_estado_by_nome(nome);
@@ -110,6 +111,7 @@ export class Automato {
       });
     }
   }
+  
   get_estado_by_nome(nome) {
     for (let i = 0; i < this.estados.length; i++) {
       if (this.estados[i].nome == nome) {

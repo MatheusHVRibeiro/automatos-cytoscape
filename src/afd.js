@@ -121,7 +121,9 @@ export class AFD extends Automato {
             new Alerta("palavra recusada");
         }
     }
+
     debuga_palavra(){
+        super.debuga_palavra();
         console.log(this.estados);
     }
 
