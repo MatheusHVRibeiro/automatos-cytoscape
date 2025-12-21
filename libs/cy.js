@@ -42,7 +42,3 @@ export const cy = cytoscape({
   }
 });
 
-cy.on('cxttap', 'node', function (evt) {
-  const node = evt.target;
-  automato.opcoes(node.id());
-});

@@ -5,7 +5,6 @@ export class Estado {
     this.inicial = inicial;
   }
   
-
 }
 
 export class Transicao {
@@ -76,12 +75,16 @@ export class Automato {
       }
     });
     if (!repete) {
-      this.transicoes.push(new Transicao(origem, destino, texto));
+      this.nova_transicao(texto, origem, destino)
       this.cy.add({ data: { id: id, source: origem, target: destino, valor: texto } });
       this.cy.layout({ name: 'preset' }).run();
     } else if (repete) {
       alert("Esta transição já existe, tente valores diferentes");
     }
+  }
+
+  nova_transicao(texto, origem, destino){
+    this.transicoes.push(new Transicao(origem, destino, texto));
   }
 
   torna_final(nome) {
@@ -134,10 +137,15 @@ export class Automato {
       }
       area.style.display = "block";
       this.debug = true;
+      if(this.tipo == 4 || this.tipo == 5){
+        console.log(this.tipo);
+        document.getElementById("pilha").style.display = "block";
+      }
     } else if (this.debug) {
-      row.innerHTML = "<td>&nbsp;</td>";
+      row.innerHTML = "<td class='caracter' style='background-color:green;'>&nbsp;</td>";
       palavra.readOnly = false;
       area.style.display = "none";
+      document.getElementById("pilha").style.display = "none";
       this.debug = false;
     }
 

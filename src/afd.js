@@ -5,6 +5,7 @@ class Momento {
     constructor() {
         this.i = 0;
         this.estado = 0;
+        this.nbug = true;
     }
 }
 
@@ -63,11 +64,11 @@ export class AFD extends Automato {
     }
 
     recuperador(estados, transicoes) {
-        estados.forEach(estado=>{
-            this.estados.push(new Estado(estado.nome,estado.final,estado.inicial));
+        estados.forEach(estado => {
+            this.estados.push(new Estado(estado.nome, estado.final, estado.inicial));
         });
-        transicoes.forEach(transicao=>{
-            this.transicoes.push(new Transicao(transicao.origem,transicao.destino,transicao.texto));
+        transicoes.forEach(transicao => {
+            this.transicoes.push(new Transicao(transicao.origem, transicao.destino, transicao.texto));
         });
         this.cria_desenho();
     }
@@ -99,22 +100,22 @@ export class AFD extends Automato {
     }
 
     testa_palavra() {
-        this.estados.forEach(estado=>{
-            if(estado.inicial){
+        this.estados.forEach(estado => {
+            if (estado.inicial) {
                 this.inicial = estado.nome
             }
         });
         let final = document.getElementById("palavra").value.length;
         let resultado = true;
         this.zera();
-        
+
         while (this.momento.i < final) {
             if (resultado) {
                 resultado = this.executa_momento();
             }
             ++this.momento.i;
         }
-        
+
         if (this.estados[this.get_estado_by_nome(this.momento.estado)].final && resultado) {
             new Alerta("palavra aceita");
         } else {
@@ -122,14 +123,10 @@ export class AFD extends Automato {
         }
     }
 
-    debuga_palavra(){
-        super.debuga_palavra();
-        console.log(this.estados);
-    }
-
     zera() {
         this.momento.estado = this.inicial;
         this.momento.i = 0;
+        this.momento.nbug = true;
     }
 
     executa_momento() {
@@ -137,7 +134,7 @@ export class AFD extends Automato {
         let passou = false;
 
         this.transicoes.forEach(transicao => {
-            if (transicao.origem == this.momento.estado&&
+            if (transicao.origem == this.momento.estado &&
                 palavra.value[this.momento.i] == transicao.texto) {
 
                 this.momento.estado = transicao.destino;
@@ -151,6 +148,27 @@ export class AFD extends Automato {
     opcoes(i) {
         this.formopcoes.sujeito = i;
         document.body.appendChild(this.formopcoes.div);
+    }
+
+    proximo() {
+        let colunas = document.getElementById("tabelaPalavra").children;
+        let final = document.getElementById("palavra").value.length;
+        if (this.momento.i < final) {
+            if (this.momento.nbug) {
+                colunas[this.momento.i].style.backgroundColor = "white";
+                this.cy.getElementById(this.momento.estado).style({ 'background-color': '#0074D9' });
+                this.momento.nbug = this.executa_momento();
+                colunas[this.momento.i+1].style.backgroundColor = "green";
+                this.cy.getElementById(this.momento.estado).style({ 'background-color': 'green' });
+            }
+            ++this.momento.i;
+        } else {
+            if (this.estados[this.get_estado_by_nome(this.momento.estado)].final && this.momento.nbug) {
+                new Alerta("palavra aceita");
+            } else {
+                new Alerta("palavra recusada");
+            }
+        }
     }
 }
 
