@@ -1,6 +1,6 @@
-import { cy } from "./libs/cy.js";
+import { Grafo } from "./libs/cy.js";
 import { AFD } from "./src/afd.js";
-import {APN} from "./src/apn.js";
+import { APN } from "./src/apn.js";
 /*
 import {AFN} from "./src/afn.js";
 import {AFNL} from "./src/afnl.js";
@@ -8,6 +8,8 @@ import {APD} from "./src/apd.js";
 import {APN} from "./src/apn.js";
 import {MT} from "./src/mt.js";
 */
+
+
 
 export class Main {
   constructor() {
@@ -20,23 +22,44 @@ export class Main {
       5: "APN",
       6: "MT"
     };
-    this.classes = {AFD,APN}
+
+    this.classes = { AFD, APN }
     this.carrega_modo(this.modo);
-  }
 
-  configura_botoes(){
-    document.getElementById("addEstado").onclick = this.automato.adiciona_estado.bind(this.automato);
-    document.getElementById("addTransicao").onclick = this.automato.adiciona_transicao.bind(this.automato);
-
-    document.getElementById("testa_palavra").onclick = this.automato.testa_palavra.bind(this.automato);
-    document.getElementById("debuga_palavra").onclick = this.automato.debuga_palavra.bind(this.automato);
-
-    document.getElementById("proximo").onclick = this.automato.proximo.bind(this.automato);
 
     document.getElementById("download").addEventListener("click", this.download.bind(this));
     document.getElementById("upload").addEventListener("change", this.le_arquivo.bind(this));
 
+    this.automato.formEstado.adiciona.addEventListener("click", () => {
+      let estado = this.automato.estados[this.automato.estados.length - 1];
+      this.cy.adciona_no(estado.id, estado.nome, estado.final, estado.inicial);
+    });
+    this.automato.formTransicao.adiciona.addEventListener("click", () => {
+      let transicao = this.automato.estados[this.automato.transicoes.length - 1];
+      this.cy.adciona_aresta(transicao.id, transicao.origem, transicao.destino, transicao.texto);
+    });
     window.inicia_automato = this.carrega_modo.bind(this);
+  }
+
+  configura_botoes() {
+    document.getElementById("addEstado").onclick = this.automato.adiciona_estado.bind(this.automato);
+    document.getElementById("addTransicao").onclick = this.automato.adiciona_transicao.bind(this.automato);
+
+    document.getElementById("testa_palavra").onclick = this.automato.testa_palavra.bind(this.automato);
+    document.getElementById("debuga_palavra").onclick = this.debuga_palavra.bind(this);
+
+    document.getElementById("proximo").onclick = this.automato.proximo.bind(this.automato);
+  }
+
+  carrega_modo(op) {
+    this.modo = op;
+    document.getElementById("sigla").innerText = this.dicionario[this.modo];
+    document.getElementById("titulo").innerText = this.dicionario[this.modo];
+    document.getElementById("download").innerText = "Baixar " + this.dicionario[this.modo];
+    document.getElementById("importar").innerText = "Importar " + this.dicionario[this.modo];
+    this.automato = new this.classes[this.dicionario[op]]();
+    this.cy = new Grafo(this.automato);
+    this.configura_botoes();
   }
 
   download() {
@@ -79,24 +102,36 @@ export class Main {
     console.log(jsonData);
     this.carrega_modo(jsonData.tipo);
     this.automato.recuperador(jsonData.estados, jsonData.transicoes);
-    console.log(this.automato.constructor.name);
+    this.cy.atualizar();
   }
 
-  carrega_modo(op) { 
-    this.modo = op;
-    document.getElementById("sigla").innerText = this.dicionario[this.modo];
-    document.getElementById("titulo").innerText = this.dicionario[this.modo];
-    document.getElementById("download").innerText = "Baixar " + this.dicionario[this.modo];
-    document.getElementById("importar").innerText = "Importar " + this.dicionario[this.modo];
-    this.automato = new this.classes[this.dicionario[op]](cy);   
-    this.configura_botoes();
+  debuga_palavra() {
+    let row = document.getElementById("tabelaPalavra");
+    let area = document.getElementById("debugArea");
+    let palavra = document.getElementById("palavra")
+    if (!this.debug) {
+      palavra.readOnly = true;
+      for (let i = 0; i < palavra.value.length; i++) {
+        let cell = document.createElement("td");
+        cell.innerText = palavra.value[i];
+        cell.className = "caracter";
+        row.appendChild(cell);
+      }
+      area.style.display = "block";
+      this.debug = true;
+      if (this.modo == 4 || this.mod == 5) {
+        console.log(this.tipo);
+        document.getElementById("pilha").style.display = "block";
+      }
+    } else if (this.debug) {
+      row.innerHTML = "<td class='caracter' style='background-color:green;'>&nbsp;</td>";
+      palavra.readOnly = false;
+      area.style.display = "none";
+      document.getElementById("pilha").style.display = "none";
+      this.debug = false;
+    }
   }
 
 }
 
 const main = new Main();
-
-cy.on('cxttap', 'node', function (evt) {
-  const node = evt.target;
-  main.automato.opcoes(node.id());
-});

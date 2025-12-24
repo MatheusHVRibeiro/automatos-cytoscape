@@ -1,15 +1,6 @@
 import { Alerta, FormularioEstado, FormularioTransicao, FormularioOpcoes } from "../libs/formulario.js";
 import { Automato, Estado } from "../libs/automato.js";
 
-class Momento {
-    constructor() {
-        this.i = 0;
-        this.estado = 0;
-        this.nbug = true;
-        this.pilha = [];
-    }
-}
-
 class Instancia {
     constructor(instancia) {
         if (instancia != null) {
@@ -33,20 +24,30 @@ class Instancia {
         tr.appendChild(td);
         tabela.prepend(tr);
     }
+
+    push(empilha) {
+        for (const char of empilha) {
+            this.pilha.push(char);
+            this.empilha(empilha);
+        }
+    }
+
     desempilha() {
         let tabela = document.body.getElementById("pilha");
         tabela.firstElementChild.remove();
     }
-}
 
-export class Transicao {
-    constructor(origem, destino, leitura, empilha, desempilha) {
-        this.origem = origem;
-        this.destino = destino;
-        this.leitura = leitura;
-        this.empilha = empilha;
-        this.desempilha = desempilha;
+    pop(desempilha) {
+        if (this.pilha[this.pilha.length - 1] == desempilha || desempilha == "") {
+            this.pilha.pop();
+            this.desempilha();
+            return true;
+        }else{
+            return false;
+        }
     }
+
+    
 }
 
 export class APN extends Automato {
@@ -54,12 +55,38 @@ export class APN extends Automato {
         super(cy);
         this.tipo = 5;
         this.nome = "APN";
-        this.momento = new Momento();
+        this.momento = 0;
         this.instancias = [];
 
         this.formEstado = new FormularioEstado();
         this.campos_transicao();
         this.configura_opcoes();
+        this.botoes_formulario();
+    }
+
+    botoes_formulario(){
+        this.formEstado.adiciona.onclick = () => {
+            super.adiciona_estado(this.formEstado.nome.value);
+            console.log(this.estados);
+            this.formEstado.fechar();
+        };
+        this.formTransicao.adiciona.onclick = () => {
+            let leitura = this.formTransicao.texto.children[0].value;
+            let empilha = this.formTransicao.texto.children[2].value;
+            let desempilha = this.formTransicao.texto.children[4].value;
+            let texto = leitura + "," + desempilha + "/" + empilha;
+            super.adiciona_transicao({
+                texto: texto,
+                origem: this.formTransicao.origem.value,
+                destino: this.formTransicao.destino.value,
+                extras:{
+                    empilha: empilha,
+                    desempilha: desempilha
+                }
+            });
+            console.log(this.transicoes[0]);
+            this.formTransicao.fechar();
+        };
     }
 
     configura_opcoes() {
@@ -109,7 +136,7 @@ export class APN extends Automato {
             this.estados.push(new Estado(estado.nome, estado.final, estado.inicial));
         });
         transicoes.forEach(transicao => {
-            this.transicoes.push(new Transicao(transicao.origem, transicao.destino, transicao.leitura, transicao.empilha, transicao.desempilha));
+            this.transicoes.push(new Transicao(transicao.id, transicao.origem, transicao.destino, transicao.leitura, transicao.empilha, transicao.desempilha));
         });
         this.cria_desenho();
     }
@@ -133,38 +160,11 @@ export class APN extends Automato {
     }
 
     adiciona_estado() {
-        this.formEstado.adiciona.addEventListener("click", () => {
-            super.adiciona_estado(this.formEstado.nome.value);
-            this.formEstado.fechar();
-        });
         document.body.appendChild(this.formEstado.div);
     }
 
     adiciona_transicao() {
-        this.formTransicao.adiciona.addEventListener("click", () => {
-            let leitura = this.formTransicao.texto.children[0];
-            let empilha = this.formTransicao.texto.children[2];
-            let desempilha = this.formTransicao.texto.children[4];
-            let texto = leitura.value + "," + desempilha.value + "/" + empilha.value;
-            super.adiciona_transicao(
-                texto,
-                this.formTransicao.origem.value,
-                this.formTransicao.destino.value,
-            );
-            this.formTransicao.fechar();
-        });
         document.body.appendChild(this.formTransicao.div);
-    }
-
-    nova_transicao(texto, origem, destino) {
-        let leitura = texto[0];
-        let desempilha = texto[2];
-        let empilha = "";
-        for (let i = 4; i < texto.length; i++) {
-            empilha = empilha + texto[i];
-        }
-        this.transicoes.push(new Transicao(origem, destino, leitura, empilha, desempilha));
-        console.log(this.transicoes);
     }
 
     testa_palavra() {
@@ -243,21 +243,6 @@ export class APN extends Automato {
         });
         return this.fecho(validos);
 
-    }
-
-    pop_instancia(instancia, desempilha) {
-        if (instancia.pilha[instancia.pilha.length - 1] == desempilha) {
-            instancia.pilha.pop();
-            return true;
-        }
-        return desempilha == "";
-
-    }
-
-    push_instancia(instancia, empilha) {
-        for (const char of empilha) {
-            instancia.pilha.push(char);
-        }
     }
 
     fecho(validos) {
