@@ -14,6 +14,13 @@ class Formulario{
         this.div.style.display = "flex";
         this.div.style.flexDirection = "column";
 
+        this.fecha = document.createElement("button");
+        this.fecha.id = "botao_fecha"
+        this.fecha.onclick = ()=>{
+            this.fechar();
+        };
+        this.div.appendChild(this.fecha);
+
     }
     fechar(){
         document.body.removeChild(this.div);

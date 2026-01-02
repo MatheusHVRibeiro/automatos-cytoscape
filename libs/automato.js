@@ -50,6 +50,8 @@ export class Automato {
   adiciona_estado(novo) {
     if (this.verifica_estado(novo)) {
       this.estados.push(new Estado(this.estados.length, novo));
+      let estado = this.estados[this.estados.length - 1];
+      this.cy.adciona_no(estado.id, estado.nome, estado.final, estado.inicial);
     } else {
       alert("já existe um estado com este nome, favor incerir outro nome");
     }
@@ -69,23 +71,31 @@ export class Automato {
     if (this.verifica_transicao(transicao)) {
       let id = this.transicoes.length;
       this.transicoes.push(new Transicao(id, transicao.origem, transicao.destino, transicao.texto, transicao.extras));
+      this.cy.adciona_aresta(transicao.origem, transicao.destino, transicao.texto);
     } else {
       alert("Esta transição já existe, tente valores diferentes");
     }
   }
-  
-  recuperador(estados, transicoes){
+
+  recuperador(estados, transicoes) {
     estados.forEach(estado => {
       this.adiciona_estado(estado.nome);
+      this.cy.no_final(estado.id, estado.final);
+      this.cy.no_inicial(estado.id, estado.inicial);
     });
-    transicoes.forEach(transicao=>{
+    transicoes.forEach(transicao => {
       this.adiciona_transicao(transicao);
-      this.recupera_extras(transicao);
     });
   }
 
-  recupera_extras(transicao){
-    throw new Error('instancia de Automato criada indevidamente para: '+ transicao);
+  getEstadoByNome(nome) {
+    let aux = -1;
+    this.estados.forEach(estado => {
+      if (estado.nome == nome) {
+        aux = estado.id;
+      }
+    });
+    return aux;
   }
 
 }

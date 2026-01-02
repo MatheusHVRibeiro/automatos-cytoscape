@@ -9,8 +9,6 @@ import {APN} from "./src/apn.js";
 import {MT} from "./src/mt.js";
 */
 
-
-
 export class Main {
   constructor() {
     this.modo = 5;
@@ -24,26 +22,22 @@ export class Main {
     };
 
     this.classes = { AFD, APN }
+    this.cy = new Grafo();
     this.carrega_modo(this.modo);
 
+    this.cy.cy.on('cxttap', 'node', (evt) => {
+      this.automato.opcoes(evt.target.id());
+    });
 
     document.getElementById("download").addEventListener("click", this.download.bind(this));
     document.getElementById("upload").addEventListener("change", this.le_arquivo.bind(this));
 
-    this.automato.formEstado.adiciona.addEventListener("click", () => {
-      let estado = this.automato.estados[this.automato.estados.length - 1];
-      this.cy.adciona_no(estado.id, estado.nome, estado.final, estado.inicial);
-    });
-    this.automato.formTransicao.adiciona.addEventListener("click", () => {
-      let transicao = this.automato.estados[this.automato.transicoes.length - 1];
-      this.cy.adciona_aresta(transicao.id, transicao.origem, transicao.destino, transicao.texto);
-    });
     window.inicia_automato = this.carrega_modo.bind(this);
   }
 
   configura_botoes() {
-    document.getElementById("addEstado").onclick = this.automato.adiciona_estado.bind(this.automato);
-    document.getElementById("addTransicao").onclick = this.automato.adiciona_transicao.bind(this.automato);
+    document.getElementById("addEstado").onclick = this.automato.exibe_form_estado.bind(this.automato);
+    document.getElementById("addTransicao").onclick = this.automato.exibe_form_transicao.bind(this.automato);
 
     document.getElementById("testa_palavra").onclick = this.automato.testa_palavra.bind(this.automato);
     document.getElementById("debuga_palavra").onclick = this.debuga_palavra.bind(this);
@@ -57,8 +51,7 @@ export class Main {
     document.getElementById("titulo").innerText = this.dicionario[this.modo];
     document.getElementById("download").innerText = "Baixar " + this.dicionario[this.modo];
     document.getElementById("importar").innerText = "Importar " + this.dicionario[this.modo];
-    this.automato = new this.classes[this.dicionario[op]]();
-    this.cy = new Grafo(this.automato);
+    this.automato = new this.classes[this.dicionario[op]](this.cy);
     this.configura_botoes();
   }
 
@@ -102,7 +95,6 @@ export class Main {
     console.log(jsonData);
     this.carrega_modo(jsonData.tipo);
     this.automato.recuperador(jsonData.estados, jsonData.transicoes);
-    this.cy.atualizar();
   }
 
   debuga_palavra() {
@@ -119,8 +111,7 @@ export class Main {
       }
       area.style.display = "block";
       this.debug = true;
-      if (this.modo == 4 || this.mod == 5) {
-        console.log(this.tipo);
+      if (this.modo == 4 || this.modo == 5) {
         document.getElementById("pilha").style.display = "block";
       }
     } else if (this.debug) {

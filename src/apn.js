@@ -42,12 +42,12 @@ class Instancia {
             this.pilha.pop();
             this.desempilha();
             return true;
-        }else{
+        } else {
             return false;
         }
     }
 
-    
+
 }
 
 export class APN extends Automato {
@@ -64,27 +64,37 @@ export class APN extends Automato {
         this.botoes_formulario();
     }
 
-    botoes_formulario(){
+    botoes_formulario() {
         this.formEstado.adiciona.onclick = () => {
             super.adiciona_estado(this.formEstado.nome.value);
-            console.log(this.estados);
             this.formEstado.fechar();
         };
         this.formTransicao.adiciona.onclick = () => {
             let leitura = this.formTransicao.texto.children[0].value;
+            let Tleitura = leitura;
+            if (Tleitura == "") {
+                Tleitura = "λ";
+            }
             let empilha = this.formTransicao.texto.children[2].value;
+            let Tempilha = empilha;
+            if (Tempilha == "") {
+                Tempilha = "λ";
+            }
             let desempilha = this.formTransicao.texto.children[4].value;
-            let texto = leitura + "," + desempilha + "/" + empilha;
+            let Tdesempilha = desempilha;
+            if (Tdesempilha == "") {
+                Tdesempilha = "λ";
+            }
+            let texto = Tleitura + "," + Tdesempilha + "/" + Tempilha;
             super.adiciona_transicao({
                 texto: texto,
                 origem: this.formTransicao.origem.value,
                 destino: this.formTransicao.destino.value,
-                extras:{
+                extras: {
                     empilha: empilha,
                     desempilha: desempilha
                 }
             });
-            console.log(this.transicoes[0]);
             this.formTransicao.fechar();
         };
     }
@@ -92,19 +102,19 @@ export class APN extends Automato {
     configura_opcoes() {
         this.formopcoes = new FormularioOpcoes();
 
-        this.formopcoes.final.addEventListener("click", () => {
+        this.formopcoes.final.onclick = () => {
             let i = this.formopcoes.sujeito;
-            this.torna_final(i);
+            this.estados[i].torna_final();
+            this.cy.no_final(i, this.estados[i].final);
             this.formopcoes.fechar();
-            console.log(this.estados);
-        });
+        };
 
-        this.formopcoes.inicial.addEventListener("click", () => {
+        this.formopcoes.inicial.onclick = () => {
             let i = this.formopcoes.sujeito;
-            this.torna_inicial(i);
+            this.estados[i].torna_inicial();
+            this.cy.no_inicial(i, this.estados[i].inicial);
             this.formopcoes.fechar();
-            console.log(this.estados);
-        });
+        };
     }
 
     torna_inicial(nome) {
@@ -131,16 +141,6 @@ export class APN extends Automato {
         });
     }
 
-    recuperador(estados, transicoes) {
-        estados.forEach(estado => {
-            this.estados.push(new Estado(estado.nome, estado.final, estado.inicial));
-        });
-        transicoes.forEach(transicao => {
-            this.transicoes.push(new Transicao(transicao.id, transicao.origem, transicao.destino, transicao.leitura, transicao.empilha, transicao.desempilha));
-        });
-        this.cria_desenho();
-    }
-
     campos_transicao() {
         let div = document.createElement("div");
         let texto = document.createElement("input");
@@ -159,11 +159,11 @@ export class APN extends Automato {
         this.formTransicao = new FormularioTransicao(div);
     }
 
-    adiciona_estado() {
+    exibe_form_estado() {
         document.body.appendChild(this.formEstado.div);
     }
 
-    adiciona_transicao() {
+    exibe_form_transicao() {
         document.body.appendChild(this.formTransicao.div);
     }
 
@@ -185,7 +185,7 @@ export class APN extends Automato {
             ++this.momento.i;
         }
 
-        if (this.estados[this.get_estado_by_nome(this.momento.estado)].final && resultado) {
+        if (this.verifica_aceitacao()) {
             new Alerta("palavra aceita");
         } else {
             new Alerta("palavra recusada");
@@ -193,9 +193,7 @@ export class APN extends Automato {
     }
 
     zera() {
-        this.momento.estado = this.inicial;
-        this.momento.i = 0;
-        this.momento.nbug = true;
+        this.momento = 0;
         this.instancias = [];
         this.instancias[0] = new Instancia();
         this.instancias = this.fecho(this.instancias);
@@ -292,23 +290,36 @@ export class APN extends Automato {
     }
 
     proximo() {
+        console.log(this.instancias);
         let colunas = document.getElementById("tabelaPalavra").children;
         let final = document.getElementById("palavra").value.length;
-        if (this.momento.i < final) {
-            if (this.momento.nbug) {
-                colunas[this.momento.i].style.backgroundColor = "white";
-                this.cy.getElementById(this.momento.estado).style({ 'background-color': '#0074D9' });
-                this.momento.nbug = this.executa_momento();
-                colunas[this.momento.i + 1].style.backgroundColor = "green";
-                this.cy.getElementById(this.momento.estado).style({ 'background-color': 'green' });
-            }
-            ++this.momento.i;
+        if (this.momento < final) {
+
+            colunas[this.momento].style.backgroundColor = "white";
+            this.instancias.forEach(instancia => {
+                this.cy.getElementById(instancia.estadoAtual).style({ 'background-color': '#0074D9' });
+            });
+
+            this.executa_momento();
+            colunas[this.momento + 1].style.backgroundColor = "green";
+            this.instancias.forEach(instancia => {
+                this.cy.getElementById(instancia.estadoAtual).style({ 'background-color': 'green' });
+            });
+            ++this.momento;
         } else {
-            if (this.estados[this.get_estado_by_nome(this.momento.estado)].final && this.momento.nbug) {
+            if (this.verifica_aceitacao()) {
                 new Alerta("palavra aceita");
             } else {
                 new Alerta("palavra recusada");
             }
         }
+    }
+
+    verifica_aceitacao() {
+        let resposta = false;
+        this.instancias.forEach(instancia => {
+            resposta = resposta || (this.estados[instancia.estadoAtual].final && instancia.pilha.length == 0);
+        });
+        return resposta;
     }
 }

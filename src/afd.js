@@ -19,6 +19,22 @@ export class AFD extends Automato {
         this.formEstado = new FormularioEstado();
         this.campos_transicao();
         this.configura_opcoes();
+        this.botoes_formulario();
+    }
+
+    botoes_formulario(){
+        this.formEstado.adiciona.addEventListener("click", () => {
+            super.adiciona_estado(this.formEstado.nome.value);
+            this.formEstado.fechar();
+        });
+        this.formTransicao.adiciona.addEventListener("click", () => {
+            super.adiciona_transicao(
+                this.formTransicao.texto.value,
+                this.formTransicao.origem.value,
+                this.formTransicao.destino.value,
+            );
+            this.formTransicao.fechar();
+        });
     }
 
     configura_opcoes() {
@@ -79,23 +95,11 @@ export class AFD extends Automato {
         this.formTransicao = new FormularioTransicao(texto);
     }
 
-    adiciona_estado() {
-        this.formEstado.adiciona.addEventListener("click", () => {
-            super.adiciona_estado(this.formEstado.nome.value);
-            this.formEstado.fechar();
-        });
+    exibe_form_estado() {
         document.body.appendChild(this.formEstado.div);
     }
 
-    adiciona_transicao() {
-        this.formTransicao.adiciona.addEventListener("click", () => {
-            super.adiciona_transicao(
-                this.formTransicao.texto.value,
-                this.formTransicao.origem.value,
-                this.formTransicao.destino.value,
-            );
-            this.formTransicao.fechar();
-        });
+    exibe_form_transicao() {
         document.body.appendChild(this.formTransicao.div);
     }
 
