@@ -47,6 +47,7 @@ export class Grafo {
   }
 
   adciona_aresta(origem, destino, texto) {
+    console.log(origem, destino);
     let repete = false;
     this.cy.edges().forEach(edge => {
       if (edge.source().data('id') == origem && edge.target().data('id') == destino) {

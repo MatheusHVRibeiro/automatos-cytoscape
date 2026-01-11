@@ -56,6 +56,10 @@ export class Automato {
       alert("já existe um estado com este nome, favor incerir outro nome");
     }
   }
+  configura_estado(id, inicial, final){
+    this.estados[id].inicial = inicial;
+    this.estados[id].final = final;
+  }
 
   verifica_transicao(transicao) {
     let aprovada = true;
@@ -71,7 +75,7 @@ export class Automato {
     if (this.verifica_transicao(transicao)) {
       let id = this.transicoes.length;
       this.transicoes.push(new Transicao(id, transicao.origem, transicao.destino, transicao.texto, transicao.extras));
-      this.cy.adciona_aresta(transicao.origem, transicao.destino, transicao.texto);
+      this.cy.adciona_aresta(this.getEstadoByNome(transicao.origem), this.getEstadoByNome(transicao.destino), transicao.texto);
     } else {
       alert("Esta transição já existe, tente valores diferentes");
     }
@@ -80,6 +84,7 @@ export class Automato {
   recuperador(estados, transicoes) {
     estados.forEach(estado => {
       this.adiciona_estado(estado.nome);
+      this.configura_estado(this.estados.length-1,estado.inicial, estado.final);
       this.cy.no_final(estado.id, estado.final);
       this.cy.no_inicial(estado.id, estado.inicial);
     });

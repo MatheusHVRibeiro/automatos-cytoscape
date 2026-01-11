@@ -28,11 +28,11 @@ export class AFD extends Automato {
             this.formEstado.fechar();
         });
         this.formTransicao.adiciona.addEventListener("click", () => {
-            super.adiciona_transicao(
-                this.formTransicao.texto.value,
-                this.formTransicao.origem.value,
-                this.formTransicao.destino.value,
-            );
+            super.adiciona_transicao({
+                texto: this.formTransicao.texto.value,
+                origem: this.formTransicao.origem.value,
+                destino: this.formTransicao.destino.value,
+            });
             this.formTransicao.fechar();
         });
     }
@@ -40,53 +40,19 @@ export class AFD extends Automato {
     configura_opcoes() {
         this.formopcoes = new FormularioOpcoes();
 
-        this.formopcoes.final.addEventListener("click", () => {
+        this.formopcoes.final.onclick = () => {
             let i = this.formopcoes.sujeito;
-            this.torna_final(i);
+            this.estados[i].torna_final();
+            this.cy.no_final(i, this.estados[i].final);
             this.formopcoes.fechar();
-            console.log(this.estados);
-        });
+        };
 
-        this.formopcoes.inicial.addEventListener("click", () => {
+        this.formopcoes.inicial.onclick = () => {
             let i = this.formopcoes.sujeito;
-            this.torna_inicial(i);
+            this.estados[i].torna_inicial();
+            this.cy.no_inicial(i, this.estados[i].inicial);
             this.formopcoes.fechar();
-            console.log(this.estados);
-        });
-    }
-
-    torna_inicial(nome) {
-        let i = this.get_estado_by_nome(nome);
-
-        this.estados.forEach(estado => {
-            if (!estado.inicial && nome == estado.nome) {
-                this.estados[i].inicial = true;
-
-                this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'url(../img/inicial.png)' });
-                this.cy.getElementById(this.estados[i].nome).style({ 'background-clip': ' none' });
-                this.cy.getElementById(this.estados[i].nome).style({ 'bounds-expansion': ' 20' });
-                this.cy.getElementById(this.estados[i].nome).style({
-                    'background-width': '60px',
-                    'background-height': '40px'
-                });
-
-                this.inicial = this.estados[i].nome;
-            } else if ((estado.inicial && nome != estado.nome) || (estado.inicial && nome == estado.nome)) {
-                this.estados[i].inicial = false;
-                this.cy.getElementById(this.estados[i].nome).style({ 'background-image': 'none' });
-            }
-
-        });
-    }
-
-    recuperador(estados, transicoes) {
-        estados.forEach(estado => {
-            this.estados.push(new Estado(estado.nome, estado.final, estado.inicial));
-        });
-        transicoes.forEach(transicao => {
-            this.transicoes.push(new Transicao(transicao.origem, transicao.destino, transicao.texto));
-        });
-        this.cria_desenho();
+        };
     }
 
     campos_transicao() {
@@ -105,22 +71,25 @@ export class AFD extends Automato {
 
     testa_palavra() {
         this.estados.forEach(estado => {
+            console.log(estado);
             if (estado.inicial) {
                 this.inicial = estado.nome
+                console.log("aqui");
             }
         });
         let final = document.getElementById("palavra").value.length;
         let resultado = true;
         this.zera();
-
+        console.log(this.momento.estado);
         while (this.momento.i < final) {
             if (resultado) {
                 resultado = this.executa_momento();
             }
             ++this.momento.i;
+            console.log(this.momento.estado);
         }
 
-        if (this.estados[this.get_estado_by_nome(this.momento.estado)].final && resultado) {
+        if (this.estados[this.getEstadoByNome(this.momento.estado)].final && resultado) {
             new Alerta("palavra aceita");
         } else {
             new Alerta("palavra recusada");
@@ -160,10 +129,10 @@ export class AFD extends Automato {
         if (this.momento.i < final) {
             if (this.momento.nbug) {
                 colunas[this.momento.i].style.backgroundColor = "white";
-                this.cy.getElementById(this.momento.estado).style({ 'background-color': '#0074D9' });
+                this.cy.cy.getElementById(this.momento.estado).style({ 'background-color': '#0074D9' });
                 this.momento.nbug = this.executa_momento();
                 colunas[this.momento.i+1].style.backgroundColor = "green";
-                this.cy.getElementById(this.momento.estado).style({ 'background-color': 'green' });
+                this.cy.cy.getElementById(this.momento.estado).style({ 'background-color': 'green' });
             }
             ++this.momento.i;
         } else {
